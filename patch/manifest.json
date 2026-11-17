@@ -1,0 +1,431 @@
+{
+  "files": [
+    {
+      "bytes": 597975,
+      "path": "patch/data/update/intproc.ps3",
+      "sha256": "665266a9a31736088ba9cdeec8b7b402e8bca40d397674ba0324d9b8fe579c3c"
+    },
+    {
+      "bytes": 248649,
+      "path": "patch/data/update/logo.ps3",
+      "sha256": "6d5f455cb061ccd4d8b2083e25d581390317e456b88532f27eb38bb4caaa72fd"
+    },
+    {
+      "bytes": 255128,
+      "path": "patch/data/update/main.ps3",
+      "sha256": "a1adde99a15fcbd6b89960c41b8cc11f0b608d4ba4d8d1697a590f0f5fe143bc"
+    },
+    {
+      "bytes": 261434,
+      "path": "patch/data/update/menu.ps3",
+      "sha256": "ce10978b113fcc79225c3ddfcd962510226e09e105009913cf512ffdd21423fb"
+    },
+    {
+      "bytes": 362905,
+      "path": "patch/data/update/omake.ps3",
+      "sha256": "3e335e53ec028b5e0cf2bad2c7473a60011c7629ce4ab24aa8de1d97fe6c872a"
+    },
+    {
+      "bytes": 247387,
+      "path": "patch/data/update/op.ps3",
+      "sha256": "8d8dd06fa5ddd7072d9062a14fcf3000ed8d37125edd18a68b354dbdd20aad35"
+    },
+    {
+      "bytes": 467993,
+      "path": "patch/data/update/sn101.ps3",
+      "sha256": "d647b8f97e00c10e44fdc4ad086537c117038508daec2788a754f79e3bb9e95c"
+    },
+    {
+      "bytes": 343884,
+      "path": "patch/data/update/sn102.ps3",
+      "sha256": "1f40cae93d07e567cca8b4880788c8267ef248a1d21d9d4368dd614bcfb26d4f"
+    },
+    {
+      "bytes": 383114,
+      "path": "patch/data/update/sn102b.ps3",
+      "sha256": "702ef8e100fc4fe500b65c1d951767932c6448551b52b8e906e29b8ae4783acc"
+    },
+    {
+      "bytes": 367865,
+      "path": "patch/data/update/sn103.ps3",
+      "sha256": "b82a7051a5b77d05f1d782560ea0fcdfb0d58cb020290b13cef0fca8cbe44a4f"
+    },
+    {
+      "bytes": 471033,
+      "path": "patch/data/update/sn104.ps3",
+      "sha256": "91179fdebfbf829efd9d300244e0b0d914fd531fee924013d5cf5f2de279eb49"
+    },
+    {
+      "bytes": 573679,
+      "path": "patch/data/update/sn105.ps3",
+      "sha256": "48dea723060ec1b7313801086ce2a477ccd4843b83177af0df4d60c417cda0be"
+    },
+    {
+      "bytes": 408655,
+      "path": "patch/data/update/sn106.ps3",
+      "sha256": "ec6d4cf69b27d079a479ded44a55ff0aaa0c8683b02b0fd1e8ba35678ed8fbff"
+    },
+    {
+      "bytes": 345981,
+      "path": "patch/data/update/sn107.ps3",
+      "sha256": "0a7b7e8947a94bdbfd4d6de19c620da6443ca603a7c93cf73764f5764ea4dc4e"
+    },
+    {
+      "bytes": 336221,
+      "path": "patch/data/update/sn108.ps3",
+      "sha256": "39eb76cef717919bdd589187c176023bad395fedad63424313fa5e97b4298515"
+    },
+    {
+      "bytes": 277853,
+      "path": "patch/data/update/sn201.ps3",
+      "sha256": "23a894527c61e8bba0c26c7bba8dc7005c510c978e2bfa938be7fafa65b6618e"
+    },
+    {
+      "bytes": 318021,
+      "path": "patch/data/update/sn202.ps3",
+      "sha256": "ccf2dacce6b4826cda43ae48d1c440754131c0c986fdf6266c75f612e045c0d4"
+    },
+    {
+      "bytes": 350617,
+      "path": "patch/data/update/sn203.ps3",
+      "sha256": "cc2008983f17bacb6d593dc630e468f33afffe149989b8a4dbee5adece34bd81"
+    },
+    {
+      "bytes": 303159,
+      "path": "patch/data/update/sn204.ps3",
+      "sha256": "487cb33c018be8f6efca8ca4b31f49e80d8942bfc23664787909c098b6a1fb8c"
+    },
+    {
+      "bytes": 299052,
+      "path": "patch/data/update/sn205.ps3",
+      "sha256": "b9fb831c3b2b51841bbbb69037bba2814ff573369f49261ccb63ab591b2b50b8"
+    },
+    {
+      "bytes": 313451,
+      "path": "patch/data/update/sn206.ps3",
+      "sha256": "0aa776bc1dcd925c03d9a4f4a4f9bd94e7a8406f6f1fe720fb078c8be7bc29be"
+    },
+    {
+      "bytes": 276767,
+      "path": "patch/data/update/sn207.ps3",
+      "sha256": "3ae68f845b58a12c619b67a7a5c7d4905112659b4da273f4748d07ed515d827e"
+    },
+    {
+      "bytes": 280568,
+      "path": "patch/data/update/sn208.ps3",
+      "sha256": "c4cc8dbd4f05db1cb8ff0b038a2f765c9c4cdc2ed7f6a35720f33620d8657466"
+    },
+    {
+      "bytes": 371608,
+      "path": "patch/data/update/sn209.ps3",
+      "sha256": "41d28a000e4bcc80329a4554047def2508b11b13c6096118eef9d493f90b4df9"
+    },
+    {
+      "bytes": 333201,
+      "path": "patch/data/update/sn210.ps3",
+      "sha256": "0c7f40ee4183579e89790eaeaba8cba7f2c21a5fecbbd9f2ebf4de7ab60d98a7"
+    },
+    {
+      "bytes": 393014,
+      "path": "patch/data/update/sn211.ps3",
+      "sha256": "3533e80d6b96b47e0644dc6bab377f2d3e781f8e102e29f5dd51182648a51ede"
+    },
+    {
+      "bytes": 291182,
+      "path": "patch/data/update/sn212.ps3",
+      "sha256": "2cb124ce49102568cd4a67258b71daa2fb4d9f12885325c379392405f6ef2905"
+    },
+    {
+      "bytes": 327903,
+      "path": "patch/data/update/sn213.ps3",
+      "sha256": "327f051c3d8ed0adcb683c3e510412b66814e355e8f67b92447cab3e1ef16758"
+    },
+    {
+      "bytes": 284272,
+      "path": "patch/data/update/sn214.ps3",
+      "sha256": "672b824f2fa418b52e818998224b24a301a46725cb72c1c50b64e7ed287c016f"
+    },
+    {
+      "bytes": 257289,
+      "path": "patch/data/update/sn299.ps3",
+      "sha256": "a5be6d1e02fafd0d450716269ccb20c1f9142cd90b6a119df8752cf7068ba3d1"
+    },
+    {
+      "bytes": 264322,
+      "path": "patch/data/update/sn301.ps3",
+      "sha256": "ab825e37725af7b9fafdfb13f24793d65eb744a46623fd1cc998d71765601b23"
+    },
+    {
+      "bytes": 376449,
+      "path": "patch/data/update/sn302.ps3",
+      "sha256": "a5b094c685c57d7ea8e648d52acac416b0b2e721b37a4dfa566b6f71efb47717"
+    },
+    {
+      "bytes": 342417,
+      "path": "patch/data/update/sn303.ps3",
+      "sha256": "c0053e020999d9cd87310e70aad80879825a22ba0ce4dcf5b951795da1d693a6"
+    },
+    {
+      "bytes": 434282,
+      "path": "patch/data/update/sn304.ps3",
+      "sha256": "0f93fd74bf409a834026a5fc1121777a4d956177ce96a9da6a23b0bdd650fc65"
+    },
+    {
+      "bytes": 340604,
+      "path": "patch/data/update/sn305.ps3",
+      "sha256": "2a72d6050266cf14c26da2b34aeb59bed0ccc4260f54899f0394888347802b7f"
+    },
+    {
+      "bytes": 349759,
+      "path": "patch/data/update/sn307.ps3",
+      "sha256": "1a6cc9f02a6f621a05b59afb72be79645c16b60db467c329b49c36b8758fb23b"
+    },
+    {
+      "bytes": 411095,
+      "path": "patch/data/update/sn308.ps3",
+      "sha256": "d994f0376ce3fbf44bac61083453bf9b6bb340c867381d63c8f5ae32b4b1272f"
+    },
+    {
+      "bytes": 324351,
+      "path": "patch/data/update/sn309.ps3",
+      "sha256": "9df39b63fa598419f03798f4e2a581cbfcb8fb86a00a16963e5456643d00e1d1"
+    },
+    {
+      "bytes": 324910,
+      "path": "patch/data/update/sn310.ps3",
+      "sha256": "801011705fbf7b544c9323eb27d2220c0ee98b601a7f4dde90adfdca549e1a5a"
+    },
+    {
+      "bytes": 393898,
+      "path": "patch/data/update/sn311.ps3",
+      "sha256": "7abbf1ea2c6df1f6d37cf12c68bc19b2a0141bf4f0eacf87bcee22a2b35fbf98"
+    },
+    {
+      "bytes": 263424,
+      "path": "patch/data/update/sn312.ps3",
+      "sha256": "5b4d336f56a9d77e5c1fb495f8bb867b3b46c6cedfa3ca9a0136bd3679a35938"
+    },
+    {
+      "bytes": 253964,
+      "path": "patch/data/update/sn399.ps3",
+      "sha256": "d0738ece49dd83e4f54ebfc48cab9782f7184f1876eb55e2c7643e83017e9039"
+    },
+    {
+      "bytes": 252211,
+      "path": "patch/data/update/sn401.ps3",
+      "sha256": "dc9ef1cca664ce86b275886bcf1d1fb63b5d17a19035a30b749e20703abcf851"
+    },
+    {
+      "bytes": 319864,
+      "path": "patch/data/update/sn402.ps3",
+      "sha256": "4df140a691b1a62884d588c69ab17dd99b3d64f969ed7bc5c51aecbf98c1e336"
+    },
+    {
+      "bytes": 295586,
+      "path": "patch/data/update/sn403.ps3",
+      "sha256": "5ee65af93f182536e01585d92c4b19ef6ffd3d1e41ec6526ab2da5cc83b2ee37"
+    },
+    {
+      "bytes": 418362,
+      "path": "patch/data/update/sn404.ps3",
+      "sha256": "8b9e71646ab1eb2464f15cf674006e35be6f8aaf6159cf9c9706a909bef191b3"
+    },
+    {
+      "bytes": 332849,
+      "path": "patch/data/update/sn405.ps3",
+      "sha256": "3cdfe81615a97da4cb983def392a9b3dfe8b9aece5479b0a9c39c00248dffe52"
+    },
+    {
+      "bytes": 318415,
+      "path": "patch/data/update/sn406.ps3",
+      "sha256": "d2bf1ba18620908b2b33c2232fd31d3c198e8b46dc9be1f6ed4bf27b68e743cd"
+    },
+    {
+      "bytes": 363157,
+      "path": "patch/data/update/sn407.ps3",
+      "sha256": "256a44bdc31a00dbfc9be0ce0fa25f1fdb1cfa80ddee05eca0c11b7ac4eb70af"
+    },
+    {
+      "bytes": 307723,
+      "path": "patch/data/update/sn408.ps3",
+      "sha256": "835ea2f63648f2f6afd847da8debb15db386f2b81f1f4fce0146a8a93ff80d39"
+    },
+    {
+      "bytes": 395732,
+      "path": "patch/data/update/sn409.ps3",
+      "sha256": "1ee5556d269597c689373d0a074e1cc218883d47999570d9649233e98635a92b"
+    },
+    {
+      "bytes": 273287,
+      "path": "patch/data/update/sn410.ps3",
+      "sha256": "4b20561d35b04654d65d8cb10b88aadd1ab41a987c044dfa83999a67351c4631"
+    },
+    {
+      "bytes": 330115,
+      "path": "patch/data/update/sn411.ps3",
+      "sha256": "b50c361512585f438dd6591099aee243baba5f0d88379bd66bafbbff7d80b585"
+    },
+    {
+      "bytes": 337661,
+      "path": "patch/data/update/sn412.ps3",
+      "sha256": "63f6b872979a988dad348a3a3d8b71052536068970499b584d6134d8e6d822ec"
+    },
+    {
+      "bytes": 266107,
+      "path": "patch/data/update/sn413.ps3",
+      "sha256": "1652270bdf112a8adb5ef65e33c88e7d1452f8237495f41266995304115eb97f"
+    },
+    {
+      "bytes": 256277,
+      "path": "patch/data/update/sn499.ps3",
+      "sha256": "d439817c57578bb035153c9f3cf0f351fdec80698daad95ea7b787bdbaf60f04"
+    },
+    {
+      "bytes": 514072,
+      "path": "patch/data/update/sn501.ps3",
+      "sha256": "4c88c9a79cab1698725fe5cd473fc608d9e9d333f827f2480442dc1ff9b1f618"
+    },
+    {
+      "bytes": 331384,
+      "path": "patch/data/update/sn502.ps3",
+      "sha256": "5fd7ed2d066a946b5076569f5d61106aa11d4a3e1b5cef1e1054f99bf4f1ca36"
+    },
+    {
+      "bytes": 313461,
+      "path": "patch/data/update/sn503.ps3",
+      "sha256": "45e2d9657df3b8867246c6b1cfa1521634e1e487e91aff9a1b591121cbe48732"
+    },
+    {
+      "bytes": 351199,
+      "path": "patch/data/update/sn504.ps3",
+      "sha256": "6d6cb2d87c8c93d97584e6b648fab5442b64c0f397e9964a3d63dfbeb7e6f769"
+    },
+    {
+      "bytes": 327422,
+      "path": "patch/data/update/sn505.ps3",
+      "sha256": "ea177e396d522d8efceac71c2ec07c30cac25303d34a9ee2dc906338f185288d"
+    },
+    {
+      "bytes": 409680,
+      "path": "patch/data/update/sn506.ps3",
+      "sha256": "9bef933818779ed061f2d2f10541f62ca9f3414f34ac9e702b30c9a2c0166e95"
+    },
+    {
+      "bytes": 342085,
+      "path": "patch/data/update/sn507.ps3",
+      "sha256": "0160ea1b1b4d74c4a96bdcc232d0808e4ee1f96d6391812d07a0fc517c8f5553"
+    },
+    {
+      "bytes": 344097,
+      "path": "patch/data/update/sn508.ps3",
+      "sha256": "6802aed1f98b8015aed65bb7428344fb6c93de700cbb3cd0fa5611d545cf7dae"
+    },
+    {
+      "bytes": 400510,
+      "path": "patch/data/update/sn509.ps3",
+      "sha256": "75bdefa1c058fa7eda2c7b2e137c5c4cfefc58f1018c5f56e83c787bbdbdbd1e"
+    },
+    {
+      "bytes": 409482,
+      "path": "patch/data/update/sn510.ps3",
+      "sha256": "95bcbec64b1deac20efb0454b2063a7836e2a574da383d597dd842f7e3cf2ee6"
+    },
+    {
+      "bytes": 306193,
+      "path": "patch/data/update/sn601.ps3",
+      "sha256": "908809bb259064adc85f28e14040c234f3db82ce8c67bd9d8446f3bfa872813c"
+    },
+    {
+      "bytes": 363496,
+      "path": "patch/data/update/sn602.ps3",
+      "sha256": "0ac84fc911e34c68a4dd588c468e6da73c097be65bf2c60adbaf733c3ec05630"
+    },
+    {
+      "bytes": 473532,
+      "path": "patch/data/update/sn603.ps3",
+      "sha256": "1ef449241f7fead03fb0f8422f548a0d4d97a2d90f65cda50878086475b5e190"
+    },
+    {
+      "bytes": 275712,
+      "path": "patch/data/update/sn604.ps3",
+      "sha256": "fd5bc98e1abc9d03d1f42543a41463102693c775b1c679bbc2f5384d23e316a6"
+    },
+    {
+      "bytes": 296235,
+      "path": "patch/data/update/sn605.ps3",
+      "sha256": "fa0ec933ce1a0be9b2f104e757d19a765e6543ae0a268e18ca511779fd7c2629"
+    },
+    {
+      "bytes": 254656,
+      "path": "patch/data/update/sn901.ps3",
+      "sha256": "cca2859b99c9f02959f23b410eb667ecc13c6335b2edec6c22bdae83288887a2"
+    },
+    {
+      "bytes": 333836,
+      "path": "patch/data/update/snhak7.ps3",
+      "sha256": "dd8bc159ab94ec9b73e3c8c4a1e2d6b9aa7cb0678be9f51e690198328285ed7f"
+    },
+    {
+      "bytes": 405707,
+      "path": "patch/data/update/snhhm1.ps3",
+      "sha256": "3ec0490bcaa9048f5d4174e0a38b8630165e4fc188d9de60f8de25a959180dba"
+    },
+    {
+      "bytes": 322277,
+      "path": "patch/data/update/snhmk2.ps3",
+      "sha256": "bb568e66f8fecca93d199172c516a7c14f7af8e43d2e499cc37b2f877afc2902"
+    },
+    {
+      "bytes": 346176,
+      "path": "patch/data/update/snhmr3.ps3",
+      "sha256": "e86489e73e5f19d7c9594bd1e586381a26736c4e9ae7edbc2aa5280f6e66f7b0"
+    },
+    {
+      "bytes": 330314,
+      "path": "patch/data/update/snhmr4.ps3",
+      "sha256": "649e328700b5933be7412d9b1b6d17412dc99d7d839bb49dcc78547a530f7fd2"
+    },
+    {
+      "bytes": 330876,
+      "path": "patch/data/update/snhrm2.ps3",
+      "sha256": "6d7634d32d133ca3de4ac38df3617b157c450b3878362c4170d7ecc649af5338"
+    },
+    {
+      "bytes": 312857,
+      "path": "patch/data/update/snhrs4.ps3",
+      "sha256": "ba4ee00c8492128973305ff403c1525c65eddf6a0f4fa31c0f77ed482001dd29"
+    },
+    {
+      "bytes": 359824,
+      "path": "patch/data/update/snhsy4.ps3",
+      "sha256": "65a4f00e910fde33bec4d134d23f39e14fc858e8d6cabe7ebf9cc7fbf4eeeafd"
+    },
+    {
+      "bytes": 312338,
+      "path": "patch/data/update/snhyk1.ps3",
+      "sha256": "94afd5b83acd2893d8e890baa67eb411ecf17c10c31d24c39ccb2d999099e8a4"
+    },
+    {
+      "bytes": 254250,
+      "path": "patch/data/update/staff.ps3",
+      "sha256": "08a9f9728876ec01129f2cead096f00b3267d466f0a2430e6a6ace45181569c2"
+    },
+    {
+      "bytes": 248845,
+      "path": "patch/data/update/staff2.ps3",
+      "sha256": "15b027fe996c3ad633faac5c5f1dc1d2f5c36c63a27dbfff7d3dfe7319adbb69"
+    },
+    {
+      "bytes": 249519,
+      "path": "patch/data/update/staff3.ps3",
+      "sha256": "166a9de2d4023cf308d471179fee25cc37cecf40de0ae1c9bd545414c920f2b0"
+    },
+    {
+      "bytes": 5437,
+      "path": "patch/data/update/start.ps3",
+      "sha256": "67bb576a443351335b034cc9c6d43d24c15a56ff57bb417e39e3d52f0ec48698"
+    }
+  ],
+  "pictures": 0,
+  "scripts": 85
+}

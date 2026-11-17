@@ -1,0 +1,18 @@
+__pycache__/
+*.pyc
+
+# 提取/构建产物（游戏与汉化补丁内容，可由 script/ 重建，不入库）
+tmp/
+resource/
+patch/data/
+patch/font/*.ttf
+patch/*.dll
+patch/*_orig.dll
+releases/
+
+# 构建中间物
+patch/dll/*.o
+patch/dll/*.def.tmp
+
+.mcp.json
+*.local.*
