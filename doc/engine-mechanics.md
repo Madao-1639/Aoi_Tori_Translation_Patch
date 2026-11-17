@@ -97,3 +97,33 @@ image base `0x400000`（PE32，`cmvs32[ver.3.80]`，`ps3[ver.1.00]`）。
 - `♪` 不在 GBK，需哨兵字节 + hook `GetGlyphOutlineA` 转 `GetGlyphOutlineW`（可选）。
 - `CreateFontA` 4 个调用点是否全改 charset 会影响排版宽度（`tmMaxCharWidth` 40 vs 79），需实测；参照《ハピメア》只改正文那一处。
 - 字体默认名不要指望 `cmvs.cfg FONT=`（游戏退出会用内存值写回覆盖），应在 `CreateFontA` hook 里改 face，或改内存里的默认串。
+
+## 8. 验证记录（2026-11-17，实机）
+
+安装形态：原生 `mog3x32.dll` 改名 `mog3x32.dll.orig`；代理 `mog3x32.dll` + `data/update/cnpatch.dll` + 85 份中文脚本。
+
+`data/update/cnpatch.log`：
+
+```
+init	exe=00400000 kernel32=76a50000 gdi32=758a0000
+image	base=00400000 size=00151000
+lead-byte	applied 9/9
+iat	CreateFontA hook ok, original=758a5330
+font-file	...\data\update\font\AoiToriCN.ttf -> 0     ← 随包字体尚未提供
+font	h=0 w=400 charset 80->86 face=MS Gothic
+font	h=-28 w=400 charset 80->86 face=MS Gothic        ← 正文
+```
+
+实机结果：Steam 直启 `cmvs32.exe`（未替换 exe），标题画面正常，进入剧情后中文正常显示与换行：
+
+> 「我要把那象征着幸福的青鸟，从美丽的苍穹一把给拍落在地，囚禁在笼子里」
+
+即：代理注入 + 9 处引导字节 + charset 钩子 + `data/update` 脚本覆盖这条链路**端到端打通**。
+此时字体仍走 GDI 按 charset 134 自动替换（`MS Gothic` 无中文字形 → 系统替换为新宋体），说明"只改 charset、不改字体名"也能显示中文；随包字体只是为了让字形与度量可控、且免安装。
+
+### 开发期踩到的两个工具链坑（已修）
+
+1. 本机 m2w64 的 `ld -m i386pe` 产出的 DLL **没有 `.reloc`**（`--dynamicbase` 也不生成）。DLL 首选基址被占用时 `LoadLibrary` 会以 `ERROR_INVALID_ADDRESS (487)` 失败。
+   → `build.sh` 给 `cnpatch.dll` 指定 `--image-base 0x6A000000`，与代理的 `0x10000000` 错开。
+2. **不要在 `DllMain` 里 `LoadLibrary` 补丁本体**：此时进程仍在加载器临界区，实测被拒绝（同样是 487）。
+   → 代理改为开线程，等 `gdi32.dll` 出现在模块表后再加载 `cnpatch.dll`（实际耗时 <10 ms，远早于引擎建字体）。

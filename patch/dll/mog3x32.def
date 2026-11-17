@@ -1,0 +1,21 @@
+LIBRARY mog3x32
+EXPORTS
+MGV_Close
+MGV_CloseCoder
+MGV_GetFrameDecode
+MGV_GetOggFileMemory
+MGV_Init
+MGV_InputFile
+MGV_InputMemory
+MOG_Close
+MOG_CloseCoder
+MOG_DetectConfigure
+MOG_GetPcmFormat
+MOG_GetPcmLength
+MOG_GetProcessFrame
+MOG_Init
+MOG_InputFile
+MOG_InputFile2
+MOG_InputMemory
+MOG_InputMemory2
+MOG_Replay
