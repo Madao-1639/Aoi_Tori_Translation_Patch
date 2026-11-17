@@ -61,7 +61,7 @@ def main():
                        magic=b"PB3B")
 
     extra = []
-    for path in ("mog3x32.dll", "data/update/font/AoiToriCN.ttf"):
+    for path in ("mog3x32.dll", "cnpatch/cnpatch.dll", "cnpatch/font.ttf"):
         full = os.path.join(args.out, path)
         if os.path.isfile(full):
             extra.append({"path": path.replace(os.sep, "/"), "bytes": os.path.getsize(full),

@@ -127,3 +127,25 @@ font	h=-28 w=400 charset 80->86 face=MS Gothic        ← 正文
    → `build.sh` 给 `cnpatch.dll` 指定 `--image-base 0x6A000000`，与代理的 `0x10000000` 错开。
 2. **不要在 `DllMain` 里 `LoadLibrary` 补丁本体**：此时进程仍在加载器临界区，实测被拒绝（同样是 487）。
    → 代理改为开线程，等 `gdi32.dll` 出现在模块表后再加载 `cnpatch.dll`（实际耗时 <10 ms，远早于引擎建字体）。
+
+## 9. 安装布局（2026-11-17 调整）
+
+只有**引擎会读**的东西才放 `data/`；补丁自身文件放游戏根的自有目录：
+
+```
+<游戏目录>/
+  mog3x32.dll            代理（名字被 exe 导入表钉死，必须在根目录）
+  mog3x32.dll.orig       原生文件改名（内容不变）
+  cnpatch/cnpatch.dll    补丁本体（语义明确，与引擎无关）
+  cnpatch/font.ttf       随包字体（DLL 私有注册，免安装）
+  cnpatch/cnpatch.log    运行日志（开发期诊断）
+  data/update/*.ps3      中文脚本（引擎脚本路径表槽 0）
+  data/image/update/*.pb3  界面图（引擎图片表槽 0）
+```
+
+字体策略：**不改字体名**。`CreateFontA` 钩子只把 charset 改成 `0x86`，face 原样透传（默认 `MS Gothic`），
+GDI 按 charset 自行替换成系统中文字体 —— 实测中文显示正常。随包字体只是为了让字形/度量可控且免安装，
+其字体族名沿用原名，不需要引擎侧任何改动。
+
+未决：窗口标题仍显示 `Aoi Tori[ver.1.03] R18`（空的 `data/update/start.ps3` 标题是 GBK「青鸟【天之圣杯汉化组】」），
+但脚本正文确实来自 `data/update/`，需单独查标题来源（不影响正文）。

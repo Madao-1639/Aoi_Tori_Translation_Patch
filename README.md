@@ -8,14 +8,15 @@
 
 1. 确保已按官方要求装好 **AoiToriR18Patchv1.04**（本补丁的中文脚本来自 18+ 内容版本）。
 2. 把发布包内容复制进游戏安装目录（Steam 库 → 右键 → 管理 → 浏览本地文件）：
-   - `mog3x32.dll`（本补丁的代理）
-   - 首次安装时把原生 `mog3x32.dll` **改名**为 `mog3x32_orig.dll`，再用发布包里的 `mog3x32.dll` 顶替
-   - `data/update/`、`data/image/update/`、`data/update/font/`（新增文件）
+   - `mog3x32.dll`（代理，必须在游戏根目录）
+   - 首次安装时把原生 `mog3x32.dll` **改名**为 `mog3x32.dll.orig`，再用发布包里的顶替
+   - `cnpatch/`（本补丁本体：`cnpatch.dll` + `font.ttf` + 日志；与引擎无关，故不放在 `data/` 下）
+   - `data/update/`、`data/image/update/`（**只有引擎会读的东西**才放 `data/`）
 3. 从 Steam 正常启动游戏即可。
 
 ## 卸载
 
-删除 `mog3x32.dll`、`data/update/`、`data/image/update/` 中由本补丁新增的文件，再把 `mog3x32_orig.dll` 改回 `mog3x32.dll`（或 Steam「验证游戏文件完整性」还原）。
+删除 `mog3x32.dll`、`cnpatch/`、`data/update/` 与 `data/image/update/` 里本补丁新增的文件，再把 `mog3x32.dll.orig` 改回 `mog3x32.dll`（或 Steam「验证游戏文件完整性」还原）。
 
 ## 当前状态
 
@@ -33,7 +34,7 @@
 | 中文字形 | 引擎 `GetGlyphOutlineA` 的转码完全由 `LOGFONT.charset` 决定（`0x80`=SJIS / `0x86`=GB2312）；exe 里**没有** `MultiByteToWideChar`、`AddFontResource` |
 | 引导字节 | 双字节判定内联 9 份（`cmp X,0x9F`），需 `0x9F→0xFE` 才认 GBK |
 | 生效通路 | 代理 `mog3x32.dll`（引擎自带 OGG 音频库，19 个导出，静态导入）→ `DllMain` 打内存补丁 + `AddFontResourceExW(FR_PRIVATE)` 私有注册随包字体 |
-| 字体 | 随包 OFL 字体，私有加载，只对本进程可见，**免安装**；`cmvs.cfg` 的 `FONT=` 改不动（退出会被写回） |
+| 字体 | **不改字体名**，只把 charset 改成 GB2312，让 GDI 按名字找中文字体；随包 OFL 字体会用 `AddFontResourceExA(FR_PRIVATE)` 私有注册（只对本进程可见、免安装），字体族名沿用原名字 |
 
 细节（IDA 地址、跳表、实测数据）见 [`doc/engine-mechanics.md`](doc/engine-mechanics.md)。
 

@@ -275,7 +275,7 @@ int __stdcall DllMain(HMODULE self, u32 reason, void* reserved)
     // 2) 加载补丁本体（失败不影响音频；另开线程等 gdi32 就绪后重试一次）
     {
         int n = 0, k = 0;
-        static const char suffix[] = { 92,'d','a','t','a',92,'u','p','d','a','t','e',92,'c','n','p','a','t','c','h','.','d','l','l',0 };
+        static const char suffix[] = { 92,'c','n','p','a','t','c','h',92,'c','n','p','a','t','c','h','.','d','l','l',0 };
         while (g_dir[n] && n < 460) { g_patch_path[n] = g_dir[n]; ++n; }
         while (suffix[k]) g_patch_path[n++] = suffix[k++];
         g_patch_path[n] = 0;

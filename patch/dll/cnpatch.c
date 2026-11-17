@@ -308,8 +308,8 @@ static void apply_lead_byte_patches(u32 base, u32 size)
 #define GB2312_CHARSET 134
 #define SHIFTJIS_CHARSET 128
 
-static char g_face[64] = "AoiToriCN";
-static int g_force_face = 1;
+static char g_face[64];   /* 默认空：不改字体名，沿用引擎/配置里的原名 */
+static int g_force_face;   /* 默认 0：只改 charset，不动字体名 */
 
 typedef HANDLE(__stdcall* FN_CreateFontA)(int, int, int, int, int, u32, u32, u32,
                                           u8, u8, u8, u8, u8, const char*);
@@ -394,7 +394,7 @@ static void add_private_font(void)
     int n = 0;
     char* tail;
     char* scan;
-    const char* suffix = "\\font\\AoiToriCN.ttf";
+    static const char suffix[] = { 92,'f','o','n','t','.','t','t','f',0 };
     int added;
 
     if (!pAddFontResourceExA || !pGetModuleFileNameA) return;
