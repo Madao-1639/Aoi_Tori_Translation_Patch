@@ -394,7 +394,7 @@ static void add_private_font(void)
     int n = 0;
     char* tail;
     char* scan;
-    static const char suffix[] = { 92,'f','o','n','t','.','t','t','f',0 };
+    static const char suffix[] = { 92,'f','o','n','t','.','o','t','f',0 };
     int added;
 
     if (!pAddFontResourceExA || !pGetModuleFileNameA) return;
