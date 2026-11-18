@@ -2,9 +2,9 @@
 
 Inputs:
   resource/patch/scripts/*.ps3       中文脚本（script/extract_patch.py 产物）
-  resource/patch/pictures/*.pb3      界面图（可选，待 PB3B 编码器接入）
-  patch/font/AoiToriCN.ttf           随包字体（可选）
-  patch/dll/mog3x32.dll              代理 DLL（patch/dll/build.sh 产物，可选）
+  resource/patch/pictures_pb3/*.pb3  界面图（script/build_images.py 的 PB3B 产物）
+  patch/cnpatch/font/*.ttf           随包字体（script/build_font.py 产物，可放多个）
+  patch/mog3x32.dll                  原生音频库 + 引导节（dll/build_loader.sh 产物）
 
 Output: patch/data/update/*.ps3、patch/data/image/update/*.pb3、清单 patch/manifest.json
 """
@@ -19,6 +19,10 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# start.ps3 负责把 data/update 挂到最高优先级，它自己只能来自 data/code，
+# 放进 data/update 永远不会被读到（标题串也因此只能靠钩子改）。
+SKIP = {"start.ps3"}
+
 
 def sha256_file(path):
     digest = hashlib.sha256()
@@ -28,11 +32,13 @@ def sha256_file(path):
     return digest.hexdigest()
 
 
-def collect(source_dir, pattern, destination_dir, magic=None):
+def collect(source_dir, pattern, destination_dir, out_root, magic=None):
     entries = []
     if not os.path.isdir(source_dir):
         return entries
     for name in sorted(os.listdir(source_dir)):
+        if name in SKIP:
+            continue
         if not name.lower().endswith(pattern):
             continue
         src = os.path.join(source_dir, name)
@@ -44,7 +50,7 @@ def collect(source_dir, pattern, destination_dir, magic=None):
         os.makedirs(destination_dir, exist_ok=True)
         dst = os.path.join(destination_dir, name)
         shutil.copy2(src, dst)
-        entries.append({"path": os.path.relpath(dst, ROOT).replace(os.sep, "/"),
+        entries.append({"path": os.path.relpath(dst, out_root).replace(os.sep, "/"),
                         "bytes": os.path.getsize(dst), "sha256": sha256_file(dst)})
     return entries
 
@@ -52,20 +58,26 @@ def collect(source_dir, pattern, destination_dir, magic=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scripts", default=os.path.join(ROOT, "resource", "patch", "scripts"))
-    parser.add_argument("--pictures", default=os.path.join(ROOT, "resource", "patch", "pictures"))
+    parser.add_argument("--pictures", default=os.path.join(ROOT, "resource", "patch", "pictures_pb3"))
     parser.add_argument("--out", default=os.path.join(ROOT, "patch"))
     args = parser.parse_args()
 
-    scripts = collect(args.scripts, ".ps3", os.path.join(args.out, "data", "update"))
+    scripts = collect(args.scripts, ".ps3", os.path.join(args.out, "data", "update"), args.out)
     pictures = collect(args.pictures, ".pb3", os.path.join(args.out, "data", "image", "update"),
-                       magic=b"PB3B")
+                       args.out, magic=b"PB3B")
 
     extra = []
-    for path in ("mog3x32.dll", "cnpatch/cnpatch.dll", "cnpatch/font.ttf"):
+    for path in ("mog3x32.dll", "cnpatch/cnpatch.dll"):
         full = os.path.join(args.out, path)
         if os.path.isfile(full):
             extra.append({"path": path.replace(os.sep, "/"), "bytes": os.path.getsize(full),
                           "sha256": sha256_file(full)})
+    font_dir = os.path.join(args.out, "cnpatch", "font")   # 目录里可能有多个用户字体
+    if os.path.isdir(font_dir):
+        for name in sorted(os.listdir(font_dir)):
+            full = os.path.join(font_dir, name)
+            extra.append({"path": os.path.relpath(full, args.out).replace(os.sep, "/"),
+                          "bytes": os.path.getsize(full), "sha256": sha256_file(full)})
 
     manifest = {
         "scripts": len(scripts), "pictures": len(pictures),

@@ -1,0 +1,19 @@
+{
+ "_comment": "汉化包 (Longinus.dat) 图片条目 -> 游戏内文件名。键是 Longinus 的名字哈希，值含文件名与来源。用于 script/build_images.py 把裸 BGRA 编码成正确的 .pb3 名。",
+ "_source": "按 Longinus 的 name_hash 反查：先碰磁盘 data/image/**/*.pb3 的文件名，再碰各 .cpz 的成员名（tool/cpz7.py）。",
+ "mapping": {
+  "1876cefc": { "file": "unlock05.pb3", "origin": "data/image/chip" },
+  "1cf2ead3": { "file": "unlock02.pb3", "origin": "data/image/chip" },
+  "1c3b0731": { "file": "title_chip_trial.pb3", "origin": "data/image/chip" },
+  "20286859": { "file": "ev_etc06d.pb3", "origin": "data/image/event" },
+  "24a48430": { "file": "ev_etc06a.pb3", "origin": "data/image/event" },
+  "2de31532": { "file": "bg230e.pb3", "origin": "data/pack/bg.cpz" },
+  "44a02d99": { "file": "unlock04.pb3", "origin": "data/image/chip" },
+  "4473ffe6": { "file": "title_chip_trial_v2.pb3", "origin": "data/image/chip" },
+  "491c4970": { "file": "unlock01.pb3", "origin": "data/image/chip" },
+  "4c51c6f6": { "file": "ev_etc06c.pb3", "origin": "data/image/event" },
+  "70c98c36": { "file": "unlock03.pb3", "origin": "data/image/chip" },
+  "73ff09bc": { "file": "ev_etc06e.pb3", "origin": "data/image/event" },
+  "787b2593": { "file": "ev_etc06b.pb3", "origin": "data/image/event" }
+ }
+}

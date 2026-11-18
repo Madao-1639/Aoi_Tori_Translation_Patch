@@ -21,7 +21,9 @@ import re
 import struct
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tool"))
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_RESOURCE = os.path.join(_ROOT, "resource", "patch")
+sys.path.insert(0, os.path.join(_ROOT, "tool"))
 
 import longinus  # noqa: E402
 import ps3  # noqa: E402
@@ -89,6 +91,13 @@ def main() -> int:
 
     names = picture_candidates(decoded.values())
     by_hash = {longinus.name_hash(name): name for name in names}
+    # 脚本里查不到名字的条目，用一次性匹配得到的映射表补齐
+    # （映射表来源：按 name_hash 碰磁盘与 .cpz 成员名，见 tool/cpz7.py）
+    mapping_path = os.path.join(ROOT_RESOURCE, "unresolved_mapping.json")
+    if os.path.isfile(mapping_path):
+        with open(mapping_path, encoding="utf-8") as stream:
+            for key_hex, info in json.load(stream)["mapping"].items():
+                by_hash.setdefault(int(key_hex, 16), info["file"])
     for key, data in sorted(patch.pictures().items()):
         name = by_hash.get(key)
         record = {"hash": "%08x" % key, "bytes": len(data), "name": name}

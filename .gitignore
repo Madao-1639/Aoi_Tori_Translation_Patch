@@ -3,16 +3,14 @@ __pycache__/
 
 # 提取/构建产物（游戏与汉化补丁内容，可由 script/ 重建，不入库）
 tmp/
-resource/
-patch/data/
-patch/font/*.ttf
-patch/*.dll
-patch/*_orig.dll
+resource/patch/*
+# 人工匹配成果，不可重建，必须入库
+!resource/patch/unresolved_mapping.json
+/patch/
 releases/
 
 # 构建中间物
-patch/dll/*.o
-patch/dll/*.def.tmp
+dll/*.o
 
 .mcp.json
 *.local.*
