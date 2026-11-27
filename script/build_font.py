@@ -38,20 +38,33 @@ EXTRA = (
 
 
 def used_characters(script_dir):
+    """收集所有中文脚本用到的字。
+
+    **不允许静默跳过**：某个串解不出 GBK 说明脚本里混进了非 GBK 字节（历史日文残留、
+    写错的编码等），这时字母表会默默缺字、实机表现为豆腐块。所以解不出就记账，
+    收集完一并报错，让问题在构建阶段暴露。
+
+    唯一允许的例外：内容里没有非 ASCII 字节的串（纯 ASCII 控制串/文件名）
+    本来就不需要 GBK 解码，直接跳过。
+    """
     chars = set(EXTRA)
     count = 0
+    undecodable = []
     for name in sorted(os.listdir(script_dir)):
         if not name.lower().endswith(".ps3"):
             continue
         count += 1
         script = ps3.load(os.path.join(script_dir, name))
-        for _, raw in script.strings():
+        for offset, raw in script.strings():
+            if not raw or all(0x20 <= byte < 0x7F for byte in raw):
+                continue
             try:
                 text = raw.decode("gbk")
-            except UnicodeDecodeError:
+            except UnicodeDecodeError as exc:
+                undecodable.append((name, offset, raw[:40], str(exc)))
                 continue
             chars.update(text)
-    return chars, count
+    return chars, count, undecodable
 
 
 def to_truetype(font, max_err=1.0):
@@ -163,9 +176,17 @@ def main() -> int:
     parser.add_argument("--out-dir", default=os.path.join(ROOT, "patch", "cnpatch"))
     args = parser.parse_args()
 
-    chars, scripts = used_characters(args.scripts)
+    chars, scripts, undecodable = used_characters(args.scripts)
     codepoints = sorted(ord(c) for c in chars if c.isprintable() or c in "　♪")
     print("scripts %d, characters %d" % (scripts, len(codepoints)))
+    if undecodable:
+        # 字表会因这些串而缺点字，实机表现为豆腐块，不得静默通过
+        print("ERROR 有 %d 个串无法按 GBK 解码，字表不完整：" % len(undecodable))
+        for name, offset, head, why in undecodable[:20]:
+            print("   %-11s @%-6d %r（%s）" % (name, offset, head, why))
+        if len(undecodable) > 20:
+            print("   ……共 %d 个" % len(undecodable))
+        return 1
     os.makedirs(args.out_dir, exist_ok=True)
     os.makedirs(os.path.join(args.out_dir, "font"), exist_ok=True)
 

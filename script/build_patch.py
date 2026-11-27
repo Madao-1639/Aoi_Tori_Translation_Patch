@@ -60,6 +60,8 @@ def main():
     parser.add_argument("--scripts", default=os.path.join(ROOT, "resource", "patch", "scripts"))
     parser.add_argument("--pictures", default=os.path.join(ROOT, "resource", "patch", "pictures_pb3"))
     parser.add_argument("--out", default=os.path.join(ROOT, "patch"))
+    parser.add_argument("--version", default="1.1.0",
+                        help="写进 manifest.json，供 script/build_update.py 定升级包文件名")
     args = parser.parse_args()
 
     scripts = collect(args.scripts, ".ps3", os.path.join(args.out, "data", "update"), args.out)
@@ -80,6 +82,7 @@ def main():
                           "bytes": os.path.getsize(full), "sha256": sha256_file(full)})
 
     manifest = {
+        "version": args.version,
         "scripts": len(scripts), "pictures": len(pictures),
         "files": scripts + pictures + extra,
     }
