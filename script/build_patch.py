@@ -60,7 +60,7 @@ def main():
     parser.add_argument("--scripts", default=os.path.join(ROOT, "resource", "patch", "scripts"))
     parser.add_argument("--pictures", default=os.path.join(ROOT, "resource", "patch", "pictures_pb3"))
     parser.add_argument("--out", default=os.path.join(ROOT, "patch"))
-    parser.add_argument("--version", default="1.1.0",
+    parser.add_argument("--version", default="1.0.0",
                         help="写进 manifest.json，供 script/build_update.py 定升级包文件名")
     args = parser.parse_args()
 
@@ -86,9 +86,9 @@ def main():
         "scripts": len(scripts), "pictures": len(pictures),
         "files": scripts + pictures + extra,
     }
+    text = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     with open(os.path.join(args.out, "manifest.json"), "w", encoding="utf-8") as stream:
-        json.dump(manifest, stream, ensure_ascii=False, indent=2, sort_keys=True)
-        stream.write("\n")
+        stream.write(text)
     print("scripts %d, pictures %d, extra %d, total %.1f MiB"
           % (len(scripts), len(pictures), len(extra),
              sum(f["bytes"] for f in manifest["files"]) / 1048576.0))

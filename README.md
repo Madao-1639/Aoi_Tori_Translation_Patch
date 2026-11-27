@@ -112,16 +112,29 @@ releases/ 发布压缩包
 
 ## 发布
 
-完整包与最小升级包都由脚本生成，不手工打 zip：
+全量包 = `patch/` 的全部内容，直接 zip，不需要脚本：
 
 ```bash
-python script/build_patch.py --version 1.1.0        # 组装 patch/，版本号写进 manifest.json
-python script/build_update.py --baseline <上一版解压目录>   # 只打差异文件
+python script/build_patch.py --version 1.0.1
+cd patch && zip -r -9 ../releases/Aoi_Tori_CN_Patch_v1.0.1.zip . -x 'manifest.json' -x 'meta/*'
 ```
 
-升级包的正确性定义：把它铺到上一版的解压目录上，结果必须与当前 `patch/` 逐字节一致。
-`build_update.py` 生成后会逐条目校验 SHA-256。基准必须用**上一版补丁包**，
-不要用游戏目录——游戏目录里还有官方 R18 补丁的图，会把它们误报成「新版不再提供」。
+最小升级包才需要脚本，因为要算差异：
+
+```bash
+# 组装新版之前，把旧版清单留一份（之后出升级包用）
+mkdir -p patch/meta/v1.0.0 && cp patch/manifest.json patch/meta/v1.0.0/
+
+python script/build_patch.py --version 1.0.1
+python script/build_update.py --from 1.0.0
+```
+
+升级包的正确性定义：把它铺到上一版的文件上，结果必须与当前 `patch/` 逐字节一致。
+`build_update.py` 生成后逐条目校验 SHA-256。
+
+基线用 `patch/meta/v<版本>/manifest.json`，**不用 `releases/` 里的旧 zip**：那个目录
+不入库、随时会被清理。也不要拿游戏目录当基线——里面有官方 R18 补丁的图，
+会把它们误报成「新版不再提供」。
 
 ## 完成进度
 
