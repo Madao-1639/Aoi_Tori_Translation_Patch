@@ -157,9 +157,11 @@ def _notes(version, base_version, payload):
     if scripts:
         lines.append("* 剧情脚本 %d 份" % len(scripts))
     if fonts:
-        lines.append("* 随包字体 %d 个（按实际用字重新子集化）" % len(fonts))
+        lines.append("* 随包字体 %d 个（修复垂直度量，解决对话框人名被误换行）" % len(fonts))
     for key in others:
         lines.append("* %s" % key)
+    lines.append("")
+    lines.append("共 %d 个文件。" % len(payload))
     lines += [
         "",
         "## 卸载 / 回退",

@@ -115,18 +115,15 @@ releases/ 发布压缩包
 全量包 = `patch/` 的全部内容，直接 zip，不需要脚本：
 
 ```bash
-python script/build_patch.py --version 1.0.1
-cd patch && zip -r -9 ../releases/Aoi_Tori_CN_Patch_v1.0.1.zip . -x 'manifest.json' -x 'meta/*'
+python script/build_patch.py --version <版本>
+cd patch && zip -r -9 ../releases/Aoi_Tori_CN_Patch_v<版本>.zip . -x 'manifest.json' -x 'meta/*'
 ```
 
 最小升级包才需要脚本，因为要算差异：
 
 ```bash
-# 组装新版之前，把旧版清单留一份（之后出升级包用）
-mkdir -p patch/meta/v1.0.0 && cp patch/manifest.json patch/meta/v1.0.0/
-
-python script/build_patch.py --version 1.0.1
-python script/build_update.py --from 1.0.0
+python script/build_patch.py --version <版本>
+python script/build_update.py --from <上一版>
 ```
 
 升级包的正确性定义：把它铺到上一版的文件上，结果必须与当前 `patch/` 逐字节一致。
@@ -135,6 +132,25 @@ python script/build_update.py --from 1.0.0
 基线用 `patch/meta/v<版本>/manifest.json`，**不用 `releases/` 里的旧 zip**：那个目录
 不入库、随时会被清理。也不要拿游戏目录当基线——里面有官方 R18 补丁的图，
 会把它们误报成「新版不再提供」。
+
+归档基线时 `version` 要写那一版自己的号、`sha256` 要取自发布包（字体可能在发布后又重新子集化过），
+所以从上一版的 zip 重建而不是拷工作区那份：
+
+```bash
+python - "1.0.1" <<'PY'
+import hashlib, json, sys, zipfile
+prev = sys.argv[1]
+path = "patch/meta/v%s/manifest.json" % prev
+data = json.load(open(path, encoding="utf-8"))
+with zipfile.ZipFile("releases/Aoi_Tori_CN_Patch_v%s.zip" % prev) as z:
+    blob = {n: z.read(n) for n in z.namelist() if not n.endswith(".txt")}
+files = [{"path": e["path"], "bytes": len(blob[e["path"]]),
+          "sha256": hashlib.sha256(blob[e["path"]]).hexdigest()} for e in data["files"]]
+with open(path, "w", encoding="utf-8") as f:
+    f.write(json.dumps(dict(data, version=prev, files=files),
+                       ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+PY
+```
 
 ## 完成进度
 

@@ -137,3 +137,52 @@ text 偏移从 0 开始密集增长，代码里的 `0`/`4`/`8`/`16` 这类小常
 ⇒ 规则：判断「是否已翻译」要看**日文语法特征**（`は/が/を/に` 等助词、`っ` 收尾、`。` 位置），
 或者直接做双编码判定（GBK 解出假名 与 EUC-JP 解出假名**同时**成立 ⇒ 几乎必是日文原字节）。
 单一特征（「有汉字」/「有假名」）都会被混合文本骗过。
+
+## 21. 「换字体就好了」的症状要先去量字体度量，不要先怀疑排版代码
+
+症状：默认字体下对话框人名（如「小夜」「律」）被误换行，压到下方正文上；换成系统字体就缓解。
+
+第一反应是去翻排版代码、查禁则、查双字节判定 —— 都是错的。真正的根因在字体文件里：
+随包思源黑体沿用了原版的**排版度量**（`hhea 1160/-288`、`OS/2 usWin 1160/288`，合计 1.448 em），
+引擎请求 28px 时 GDI 报 `tmHeight 40 / tmAscent 32 / tmInternalLeading 12`，而系统中文字体
+在同一字号下是 `28 / 24 / 0`。引擎按这个结构算「一行多高、能放几行」，行框虚高 1.448 倍
+就算少了一行，把人名行挤了下去。
+
+⇒ 规则：**「换个字体就好了」几乎总是字体度量问题**。先用 `CreateFontA` + `GetTextMetricsA`
+把可疑字体与一个已知正常的系统字体在同字号下并排量出来（`tmHeight / tmAscent / tmDescent /
+tmInternalLeading / tmAveCharWidth` + 每字形的 `GGO.cellIncX`），差异一眼可见；比读排版代码快得多。
+
+## 22. GDI 的 TEXTMETRIC 只认 `OS/2.usWinAscent/usWinDescent`，改 `hhea` 无效
+
+想把行框高度改小，最直觉的做法是改 `hhea.ascent/descent`。实测：只改 `hhea` 到 `850/-150`，
+`TEXTMETRIC` 仍然是 `tmHeight 40`；只改 `OS/2.usWinAscent/usWinDescent` 到 `850/150`，立刻变成 28。
+另外 `sTypoLineGap` 非 0 会被算进 `tmInternalLeading`，行高会超过 1 em。
+
+⇒ 规则：**改 `tmHeight/tmAscent/tmDescent` 就改 `usWinAscent/usWinDescent`**（并顺手把
+`sTypo*` 与 `hhea` 对齐到同一组值，避免其他渲染路径取到不同行高）。别只改 `hhea`。
+验证方式就是量 `TEXTMETRIC`，别信「表改了就应该生效」。
+
+## 23. 别把「对齐某个系统字体」当目标，要对齐字体自己的 em 框
+
+发现度量异常后，我一度想把 `usWinAscent/usWinDescent` 抄成 MS Gothic 的 `220/36`（0.859/0.141 em）。
+这不是根因解：那组数只是那个字体的设计选择。真正的判据是**字体自身的 em 框**——
+思源黑体自己声明 `sTypoAscender/sTypoDescender = 880/-120`，合计正好 1000 = upem = 1 em。
+子集里每个汉字都在这个框内（`yMax ≤ 868`、`yMin ≥ -108`，西文下伸例外且系统字体同样如此）。
+
+⇒ 规则：垂直度量取**字体自身** `sTypo*` 归一为 1 em（`usWin = sTypo`，`gap = 0`），
+而不是抄别的字体。抄来的数会让字体的字形与它声明的行框不自洽——汉字仍站在基线上，
+但 ascent 分配被改小，字形就会侵入上一行。
+
+## 24. 子集化会留下访问不到的宽字形，它们会污染字体级度量
+
+思源黑体里有 5 个未进 cmap 的绘图元件（源里宽 1.7~3.0 em，如 `glyph03586` 宽 2854/1000 em）。
+子集化把它们一起带了过来，于是 `hhea.advanceWidthMax = 3000`、GDI 的 `tmMaxCharWidth` 报 83px
+（按 28px 字号算 ≈ 3 em）。
+
+这次它没造成故障 —— 整份 exe 只有 `0x614C5` 一处 `GetTextMetricsA`，且只读 `tmAscent`
+（`[ebp-0x7c]`/`[ebp-0x84]`），不读 `tmMaxCharWidth`。但留着毫无意义，而且下次谁读了
+这个字段就会被坑。
+
+⇒ 规则：子集化后把 cmap 未引用的字形清空（`numberOfContours = 0`、advance 归零），
+再从 cmap 重算 `hhea.advanceWidthMax`。**先查「这个字段到底有没有人读」**再决定它是
+故障还是噪音，别看到异常值就直接归因。

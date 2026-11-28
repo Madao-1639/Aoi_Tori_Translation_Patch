@@ -1,12 +1,15 @@
-"""构建随包字体：把思源黑体 CN（OFL）按本补丁实际用字子集化，出 Regular + Bold 两个 face。
+"""构建随包字体：把思源黑体 CN（OFL）按本补丁实际用字子集化，出 Medium + Bold 两个 face。
 
-字体族名沿用引擎原本请求的名字（`MS Gothic`），引擎侧配置、游戏内字体选择列表、
-`cmvs.cfg` 的 `FONT=` 全都不用改；字形与度量由我们控制（这就是随包字体的目的）。
+字体族名用 GBK「思源黑体」，引擎侧的默认字体串由补丁就地改成同名（`doc/engine-mechanics.md` §11.2）。
 
 为什么要两个 face：引擎只请求两档字重（exe `.rdata` 0x4D1AC0 的 `cWeight` =
 {0, 200, 400, 600, 600}，索引 2=正常、4=粗体，即 400 / 600）。只放一个 face 时
 GDI 只能就近取（正常文本偏粗）或自行合成加粗（笔画发毛）。放进字体自带的
 Medium(500) 与 Bold(700)，GDI 会把 400→Medium、600→Bold 自动选好，引擎侧零改动。
+
+**垂直度量必须归一到 1em 行高**（见 `normalize_metrics`）：思源黑体原版的排版度量是
+1.448em，直接沿用会让 GDI 报出的 tmHeight / tmAscent / tmInternalLeading 与系统
+中文字体不一致，引擎侧表现为对话框人名被误换行。
 
 用法：
   python script/build_font.py \
@@ -65,6 +68,108 @@ def used_characters(script_dir):
                 continue
             chars.update(text)
     return chars, count, undecodable
+
+
+def normalize_metrics(font):
+    """把「行框高度」归一到字体自身的 em 框（1em），不改字形的实际尺寸。
+
+    思源黑体原版的垂直度量是排版用的宽行框：hhea 1160/-288、OS/2 的
+    usWinAscent/usWinDescent 也是 1160/288，合计 1.448em。子集化后这套值原样留下，
+    于是引擎请求 28px 字体时，GDI 报出 tmHeight 40 / tmAscent 32 /
+    tmInternalLeading 12 —— 而字体实际只有 28px 高。
+
+    引擎把这个结构当成**一行的高度**（对话框按「可用行高 / tmHeight」算能放几行）：
+    行框被报大 1.448 倍，算出能放的行数就少了，人名行被拆到下一行，
+    压在下方的正文上。换字体之所以「缓解」，就是因为系统字体的 tmHeight 正好等于字号。
+
+    做法：用字体**自己的** em 框（OS/2 sTypoAscender/sTypoDescender，在思源黑体里是
+    880/-120，合计正好 1000 = upem）作为行框。实测该框能装下全部 CJK 字形
+    （字集内全角字符最高 yMax 868、最低 yMin -108，见 `measure_ink_box`），所以这不是
+    模仿某个系统字体，而是回到字体自己设计的 1em 行高。
+
+    为什么动 usWin 而不是只改 hhea：GDI 的 TEXTMETRIC 只从 usWinAscent/usWinDescent
+    取 tmAscent/tmDescent（实测：只改 hhea 完全无效，只改 usWin 立即生效）。
+    sTypo* 与 hhea 一并改成同一组值，避免不同渲染路径（以及用 typo 度量的软件）
+    取到不一样的行高。
+    """
+    upem = font["head"].unitsPerEm
+    os2, hhea = font["OS/2"], font["hhea"]
+
+    ascent = os2.sTypoAscender
+    descent = -os2.sTypoDescender
+    if ascent + descent != upem:
+        raise SystemExit("字体自身的 em 框不是 1em（sTypo %d/%d，upem %d），不敢自行缩放"
+                         % (ascent, -descent, upem))
+
+    os2.usWinAscent = ascent
+    os2.usWinDescent = descent
+    os2.sTypoLineGap = 0            # 非 0 会被算进 tmInternalLeading，行高超过 1em
+    hhea.ascent = ascent
+    hhea.descent = -descent
+    hhea.lineGap = 0
+
+    # tmAveCharWidth 保持半角字宽（GBK 字符集里一个汉字 = 两字节 = 两个字宽）
+    os2.xAvgCharWidth = upem // 2
+
+    # 全角字形的 advance 不得宽于 1em：超出 em 框的字符会让按 em 宽累加的排版溢出。
+    # 字集里只有 U+2116(№, 1030) 越界；半角的 proportional advance 保持原样，
+    # 引擎对半角字母数字有单独的按词回溯逻辑（exe 0x385E8），不该拉成等宽。
+    hmtx = font["hmtx"]
+    cmap = font.getBestCmap()
+    for codepoint, glyph in cmap.items():
+        advance, side_bearing = hmtx[glyph]
+        if advance > upem:
+            hmtx[glyph] = (upem, side_bearing)
+
+    # 未映射的字形：子集化会保留源字体里的绘图元件（源里是 2~3 em 宽的长条，
+    # 例如 glyph03586 宽 2854/1000em）。它们不在 cmap 里、也进不了 GBK 字集，
+    # 但会污染字体级度量（hhea.advanceWidthMax 3000、GDI 的 tmMaxCharWidth 83px）。
+    # 引擎只用 tmHeight / tmAscent（exe 内 GetTextMetricsA 仅 0x614C5 一处调用），
+    # 所以这不影响排版；但留着一组访问不到的怪度量没有任何好处，一并清掉。
+    cmap_names = set(cmap.values())
+    glyf = font["glyf"]
+    dropped = 0
+    for name in font.getGlyphOrder():
+        if name in cmap_names or name not in glyf.glyphs:
+            continue
+        glyph = glyf[name]
+        if glyph.numberOfContours and not glyph.isComposite():
+            glyph.coordinates = None
+            glyph.flags = None
+            glyph.endPtsOfContours = []
+            glyph.numberOfContours = 0
+            dropped += 1
+        hmtx[name] = (0, 0)          # 无字形也不给它占宽度
+
+    hhea.advanceWidthMax = max(hmtx[glyph][0] for glyph in cmap_names)
+    return ascent, descent, dropped
+
+
+def measure_ink_box(font, codepoints):
+    """字符集内「全角字符」的纵向范围，用于验证 em 框装得下（与字体度量无关）。
+
+    只统计 CJK 字符（汉字/标点/假名）：西文（'g' 下伸 -247、'y' 下伸 -230、'|' 下伸 -281）
+    天然超出 descent，系统字体也一样（MS Gothic / SimSun 的 'g' 都在 descent 之下），
+    引擎按整格排版，所以它们不是异常。真正会造成「行与行重叠」的是汉字/标点/假名超出 em 框。
+    """
+    glyf = font["glyf"]
+    cmap = font.getBestCmap()
+    top, bottom = 0, 0
+    for codepoint in codepoints:
+        if (0x20 <= codepoint <= 0x7E            # ASCII
+                or 0xA1 <= codepoint <= 0xAF      # Latin-1 符号
+                or 0xFF01 <= codepoint <= 0xFF5E):  # 全角 ASCII 形式（字形与 ASCII 同形，同样带下伸）
+            continue                                    # 西文，不进 em 框校验
+        name = cmap.get(codepoint)
+        if not name:
+            continue
+        glyph = glyf[name]
+        if glyph.numberOfContours == 0:
+            continue
+        glyph.recalcBounds(glyf)
+        top = max(top, glyph.yMax)
+        bottom = min(bottom, glyph.yMin)
+    return top, bottom
 
 
 def to_truetype(font, max_err=1.0):
@@ -163,9 +268,16 @@ def build(source, out, subfamily, codepoints):
         font["head"].macStyle &= ~0x01
 
     to_truetype(font)
+    ascent, descent, dropped = normalize_metrics(font)
+    top, bottom = measure_ink_box(font, codepoints)
+    if top > ascent or -bottom > descent:
+        print("WARNING 全角字集 ink box %d/%d 超出 em 框 %d/-%d（字形会溢出到相邻行）"
+              % (top, bottom, ascent, descent))
     font.save(out)
-    print("written %s (%.1f KiB, weight %d, %s)"
-          % (out, os.path.getsize(out) / 1024.0, os2.usWeightClass, subfamily))
+    print("written %s (%.1f KiB, weight %d, %s, 行框 %d/-%d = %.3fem, 全角 ink %d/%d, 清掉未映射字形 %d)"
+          % (out, os.path.getsize(out) / 1024.0, os2.usWeightClass, subfamily,
+             ascent, descent, (ascent + descent) / float(font["head"].unitsPerEm),
+             top, bottom, dropped))
 
 
 def main() -> int:

@@ -44,7 +44,7 @@ DEFAULT_SCRIPTS = os.path.join(ROOT, "resource", "patch", "scripts")
 
 
 def load_manifest(path):
-    """返回 ({文件名: [(偏移, 原文, 译文), ...]}, [未填译文的键])。"""
+    """返回 ({文件名: [(偏移, 原文, 译文, 上一次译文), ...]}, [未填译文的键])。"""
     with open(path, encoding="utf-8") as stream:
         data = json.load(stream)
     entries = data.get("entries", data)
@@ -57,7 +57,8 @@ def load_manifest(path):
         if not zh:
             todo.append(key)
             continue
-        grouped.setdefault(name, []).append((int(offset), value.get("ja", ""), zh))
+        previous = (value.get("zh_from") or "").strip()
+        grouped.setdefault(name, []).append((int(offset), value.get("ja", ""), zh, previous))
     return grouped, todo
 
 
@@ -85,16 +86,25 @@ def main() -> int:
             raise SystemExit("清单引用了不存在的脚本：%s" % name)
         script = ps3.load(path)
         edits = []
-        for offset, ja, zh in grouped[name]:
+        for offset, ja, zh, previous in grouped[name]:
             current = script.string_at(offset)
             if current is None:
                 raise SystemExit("%s @%d 不是任何串的起点" % (name, offset))
             zh_bytes = edit_text.encode(zh)
+            # 合法的当前值只有三种：日文原文（首次补译）、新译文（已经写过）、
+            # 上一次的译文（修订已有译文，必须在清单里用 zh_from 声明）。
+            # 除此之外一律报错，不静默覆盖。
+            accepted = [zh_bytes]
             if ja:
-                expect = edit_text.encode(ja)
-                if current not in (expect, zh_bytes):
-                    raise SystemExit("%s @%d 内容对不上：清单原文 %r / 译文 %r，文件里是 %r"
-                                     % (name, offset, expect, zh_bytes, current))
+                accepted.append(edit_text.encode(ja))
+            if previous:
+                accepted.append(edit_text.encode(previous))
+            if current not in accepted:
+                raise SystemExit(
+                    "%s @%d 内容对不上：清单原文 %r / 译文 %r%s，文件里是 %r"
+                    % (name, offset, ja, zh,
+                       (" / 上一次译文 %r" % previous) if previous else "",
+                       current))
             edits.append(edit_text.TextEdit(offset, zh))
         # 空编辑也要跑一遍：等于逐字节复现，是「零改动等价」的持续校验
         out = edit_text.apply_edits(script, edits)
@@ -107,7 +117,7 @@ def main() -> int:
             with open(path, "wb") as stream:
                 stream.write(raw)
             changed += 1
-        for offset, _, zh in grouped[name]:
+        for offset, _, zh, _ in grouped[name]:
             print("   %-11s @%-6d -> %s" % (name, offset, zh[:40].replace("\n", " ")))
 
     print("补译 %d 条，写入 %d 份脚本%s"

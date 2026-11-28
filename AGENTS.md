@@ -35,7 +35,7 @@
 | 双字节判定 | 内联 9 份 `cmp X, 0x9F`（`0x4182F9 0x419D39 0x41A04B 0x41A089 0x41A0D6 0x41A146 0x41A1B9 0x41A2CB 0x41A3A9`，改**立即数字节** `0x9F→0xFE`，不按指令地址改）；另有双字节模式标志 `dword_4EF580`，由 `sub_486C40` 切换 |
 | 注入点 | **改 `mog3x32.dll`**：引擎自带 OGG 音频库、19 个导出、被静态导入 ⇒ 无条件生效、Wine 也加载。`dinput8`/`DSOUND` 条件生效，`version`/`winmm` 在 KnownDLLs，`dxgi`/`d3d11` 在 Wine 走 builtin。**在原生 DLL 上追加代码**，不替换、不转发 |
 | 版本闸门 | 9 处引导字节必须**全部**命中，任一不中则整体不应用（日志 `DISABLED`），避免游戏更新后一半中文一半乱码 |
-| 字体 | 随包思源黑体 CN（Medium 500 + Bold 700，子集 3393 字，OFL）`AddFontResourceExW(FR_PRIVATE)` 注册。三个硬性要求：**TrueType(glyf)** 轮廓（OTF/CFF 的 `fonttype=2` 不进游戏列表）、**GBK 中文族名**（双字节模式会把 ASCII 名两两配对）、**配置显示名 = `CreateFontA` 用名**（不一致就整屏豆腐块）。字重表 `cWeight @ 0x4D1AC0 = {0,200,400,600,600}` |
+| 字体 | 随包思源黑体 CN（Medium 500 + Bold 700，子集 3320 字，OFL）`AddFontResourceExW(FR_PRIVATE)` 注册。四个硬性要求：**TrueType(glyf)** 轮廓（OTF/CFF 的 `fonttype=2` 不进游戏列表）、**GBK 中文族名**（双字节模式会把 ASCII 名两两配对）、**配置显示名 = `CreateFontA` 用名**（不一致就整屏豆腐块）、**垂直度量 = 1em 行框**（思源的 1.448em 会让引擎算错行数，人名行被拆行压到正文上）。字重表 `cWeight @ 0x4D1AC0 = {0,200,400,600,600}` |
 | 配置 | **不接管** `cmvs.cfg FONT=`（引擎退出会写回覆盖）⇒ 走 `GetPrivateProfileStringA` 钩子只对 `FONT` 返回我们的名字 |
 | 标题栏 | 标题串固定在 `data/code/start.ps3`：`Aoi Tori[ver.1.03] R18` + SJIS 全角空格 `81 40` + `- 章节名 -`；`81 40` 在 GBK 下解成「号」⇒ `SetWindowTextA` 钩子换前缀 + 等长替换 `A1 A1` |
 | 素材形态 | `Longinus.dat` 里脚本是**整份 PS2A**（不是填格），图片是**裸 BGRA**（无容器，名字靠脚本里的 `*.pb3` 字符串反查） |

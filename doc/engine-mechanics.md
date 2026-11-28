@@ -256,15 +256,42 @@ call GetPrivateProfileStringA
 ### 11.3 字体本身的构造
 
 `script/build_font.py`：
-- 源字体：思源黑体 CN Medium / Bold（OFL，可再分发），按 84 份中文脚本实际用字子集化 → 3393 字；
+- 源字体：思源黑体 CN Medium / Bold（OFL，可再分发），按 85 份中文脚本实际用字子集化 → 3320 字；
 - **族名 `思源黑体`（GBK）**，`name` 表 `0x409` 与 `0x804` 同串；
 - **轮廓转 glyf**：`Cu2QuPen` + `TTGlyphPen`，`sfntVersion` 改成 `\0\1\0\0`，补 `maxp`/`post`；
 - `OS/2.ulCodePageRange1` 声明 GB2312(936)；
 - 两个 face：Medium(500) + Bold(700)，对应引擎请求的 400 / 600（`cWeight @ 0x4D1AC0 = {0,200,400,600,600}`）；
+- **垂直度量归一到 1em 行框**（见 §11.4）：`usWinAscent/usWinDescent` 与 `hhea`、`sTypo*` 统一取字体自身的 `sTypoAscender/sTypoDescender`（思源黑体 = `880/-120`，合计 = upem）；
+- **清掉 cmap 未引用的字形**：子集化保留的绘图元件（源里 2~3 em 宽的长条）访问不到，却会污染 `hhea.advanceWidthMax` 与 GDI 的 `tmMaxCharWidth`；
 - 产物 `patch/cnpatch/font/SourceHanSansCN-{Medium,Bold}.ttf`（文件名沿用官方命名，后缀跟内容走 = `.ttf`）。
 - 运行期 `AddFontResourceExW(..., FR_PRIVATE, 0)`；DllMain 与工作线程各注册一次，避免时序问题。
 
-## 12. 随包字体的两条硬性要求（实测闭环）
+### 11.4 垂直度量必须是 1em（否则人名被误换行）
+
+思源黑体原版是排版字体，垂直度量是宽行框：`hhea 1160/-288`、`OS/2 usWinAscent/usWinDescent = 1160/288`，
+合计 **1.448 em**。子集化 + 转 glyf 后这套值原样留着，于是引擎请求 `-28` 时 GDI 报出：
+
+| 度量 | 我们的字体 | MS Gothic / SimSun |
+|---|---|---|
+| `tmHeight` | **40** | 28 |
+| `tmAscent` / `tmDescent` | **32 / 8** | 24 / 4 |
+| `tmInternalLeading` | **12** | 0 |
+
+引擎把这个结构当「一行多高」用（对话框按可用高度算能放几行），行框被报大 1.448 倍，
+算出的行数就变少，**短串（对话框人名）被拆到下一行，压到正文上**。换成系统字体就正常，
+所以症状表现为「换字体缓解」。
+
+实测要点：
+- GDI 的 `TEXTMETRIC.tmAscent/tmDescent` **只从 `OS/2.usWinAscent/usWinDescent` 取**。只改 `hhea` 完全无效，只改 `usWin` 立即生效（`tmp` 里做过 A/B：`hhea 850` + `win 1160` 仍报 `tmHeight 40`）。
+- `sTypoLineGap` 非 0 会被算进 `tmInternalLeading`，行高超过 1em。
+- 引擎只用 `tmHeight` 与 `tmAscent`（exe 内 `GetTextMetricsA` **仅 `0x614C5` 一处调用**，随后只读 `[ebp-0x7c]`=`tmAscent` 与 `[ebp-0x84]`=`tmAscent`）；排版主循环在 `sub_4381A0`，行高就是字体像素大小、与 `tmHeight` 无关（`0x385BD` 起的 `[esi+0x14]+[esi+0xc]-round(size)-letter_space`）。
+- 取字体**自身**的 em 框（`sTypo 880/-120`）而不是抄系统字体的 `220/36`：该 em 框能装下全部 CJK 字形（字集内汉字最高 `yMax 868`、最低 `yMin -108`，见 `measure_ink_box` 的自检）。西文下伸（`g -247`、`y -230`）天然超出 descent，系统字体同理，不属于异常。
+- 全角字符的 advance 必须 == 1em（汉字 3101 个、假名 21 个、全角标点 64 个实测都是 1000）；半角保持源字体的 proportional 宽度，引擎对半角字母数字有单独的按词回溯（`0x385E8`），不应拉成等宽。
+
+自检（`script/build_font.py` 每次构建都打印）：`行框 880/-120 = 1.000em`、`全角 ink`、`清掉未映射字形 N`；
+字集 ink 超出 em 框会打 `WARNING`。离线校验脚本可复跑这三个判据：枚举 `fonttype=4`、用字零缺字、`tmHeight == 请求字号 且 tmInternalLeading == 0`。
+
+## 12. 随包字体的硬性要求（实测闭环）
 
 要让"游戏内字体列表能看到、设置界面显示的名字与实际渲染一致"，字体必须同时满足：
 
@@ -272,6 +299,7 @@ call GetPrivateProfileStringA
 |---|---|
 | **必须是 TrueType(glyf) 轮廓** | OTF(CFF) 字体在 `EnumFontFamiliesExA` 回调里 `fonttype=2`(DEVICE)；游戏列表只收 `fonttype=4`(TRUETYPE)，所以 OTF 永远不出现在列表里（`script/build_font.py` 用 `Cu2QuPen` + `TTGlyphPen` 转 glyf，并把 `sfntVersion` 改成 `\0\1\0\0`） |
 | **配置显示名 = `CreateFontA` 用名** | 两者写成不同的串（曾出现"配置返回中文名、`CreateFontA` 换 ASCII 名"）时，GDI 匹配不到字族会退回西文字体，整个文本对象都变豆腐块 |
+| **垂直度量必须是 1em 行框** | 否则 `tmHeight`/`tmAscent`/`tmInternalLeading` 与字号不符，引擎算错行数，人名行被拆行压到正文上（见 §11.4） |
 
 族名用中文只是为了让下拉框里好看，不是硬性要求：实测纯 ASCII 族名（`AOTEST`）与缺 `0x804` 记录的中文族名都能正常枚举、选中、渲染。引擎自己绘制字体名的路径确实会在双字节模式下把 ASCII 名两两配对（`AAAA` → `侬傲…`），但那与「字体能不能被选中」是两条路径，不要混淆（详见 `lessons-learned.md` §4）。
 
